@@ -1,12 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Dapper;
+using Npgsql;
+using System.Data;
 
 namespace Profiles.Infrastructure
 {
-    internal class ApplicationDb
+    public class ProfilesDbContext
     {
+        public IDbConnection DbConnection { get; private set; }
+        public ProfilesDbContext() 
+        {
+            string connectionString = $"Host={Environment.GetEnvironmentVariable("Host")}; " +
+                $"Port={Environment.GetEnvironmentVariable("Port")}; " +
+                $"Database={Environment.GetEnvironmentVariable("DatabaseName")}; " +
+                $"Username={Environment.GetEnvironmentVariable("Username")}; " +
+                $"Password={Environment.GetEnvironmentVariable("Password")};";
+
+            DbConnection = new NpgsqlConnection(connectionString);
+        }
     }
 }

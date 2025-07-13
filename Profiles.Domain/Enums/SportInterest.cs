@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace Profiles.Domain.Enums
 {
-    internal class SportInterest
+    public enum SportInterest
     {
+        Football,
+        Tennis,
+        Basketball,
+        Yoga,
+        Cycling,
+        Swimming,
+        Boxing,
+        Skiing
     }
 }

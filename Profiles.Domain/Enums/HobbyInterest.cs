@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace Profiles.Domain.Enums
 {
-    internal class HobbyInterest
+    public enum HobbyInterest
     {
+        Drawing,
+        PlayingMusic,
+        Programming,
+        Gaming,
+        Dancing,
+        Photography,
+        BoardGames,
+        Handcrafting
     }
 }

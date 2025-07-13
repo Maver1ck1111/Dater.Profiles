@@ -6,7 +6,17 @@ using System.Threading.Tasks;
 
 namespace Profiles.Domain.Enums
 {
-    internal class BookInterest
+    public enum BookInterest
     {
+        Fantasy,
+        Romance,
+        Thriller,
+        Mystery,
+        ScienceFiction,
+        HistoricalFiction,
+        Classic,
+        YoungAdult,
+        Horror,
+        NonFiction
     }
 }

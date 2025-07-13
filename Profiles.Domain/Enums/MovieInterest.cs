@@ -6,7 +6,16 @@ using System.Threading.Tasks;
 
 namespace Profiles.Domain.Enums
 {
-    internal class MovieInterest
+    public enum MovieInterest
     {
+        Action,
+        Comedy,
+        Drama,
+        Thriller,
+        ScienceFiction,
+        Horror,
+        Romance,
+        Documentary,
+        Anime
     }
 }

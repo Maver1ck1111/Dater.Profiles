@@ -6,7 +6,17 @@ using System.Threading.Tasks;
 
 namespace Profiles.Domain.Enums
 {
-    internal class MusicInterest
+    public enum MusicInterest
     {
+        Pop,
+        Rock,
+        HipHop,
+        Jazz,
+        Classical,
+        Electronic,
+        Indie,
+        RnB,
+        Country,
+        Reggae
     }
 }

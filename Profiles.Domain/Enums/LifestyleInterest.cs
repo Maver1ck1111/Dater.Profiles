@@ -6,7 +6,17 @@ using System.Threading.Tasks;
 
 namespace Profiles.Domain.Enums
 {
-    internal class LifestyleInterest
+    public enum LifestyleInterest
     {
+        ActiveLifestyle,
+        Homebody,
+        NightOwl,
+        EarlyBird,
+        CareerDriven,
+        FamilyOriented,
+        SocialButterfly,
+        Minimalist,
+        Adventurous,
+        CreativeType
     }
 }

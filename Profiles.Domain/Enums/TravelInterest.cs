@@ -6,7 +6,17 @@ using System.Threading.Tasks;
 
 namespace Profiles.Domain.Enums
 {
-    internal class TravelInterest
+    public enum TravelInterest
     {
+        Mountains,
+        Sea,
+        ExoticCountries,
+        Hiking,
+        RoadTrips,
+        Cruises,
+        CityTours,
+        CulturalTravel,
+        AdventureTravel,
+        WellnessTravel
     }
 }

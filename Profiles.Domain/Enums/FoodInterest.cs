@@ -6,7 +6,18 @@ using System.Threading.Tasks;
 
 namespace Profiles.Domain.Enums
 {
-    internal class FoodInterest
+    public enum FoodInterest
     {
+        Italian,
+        Japanese,
+        Mexican,
+        Chinese,
+        Indian,
+        French,
+        AmericanBBQ,
+        Vegetarian,
+        Vegan,
+        StreetFood,
+        DessertsAndBaking
     }
 }
