@@ -1,5 +1,4 @@
-﻿using Castle.Core.Logging;
-using Dapper;
+﻿using Dapper;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -7,11 +6,6 @@ using Profiles.Domain;
 using Profiles.Domain.Enums;
 using Profiles.Infrastructure;
 using Profiles.Infrastructure.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Profiles.Tests
 {
@@ -61,7 +55,7 @@ namespace Profiles.Tests
             addedProfile.StatusCode.Should().Be(200);
             addedProfile.Value.Should().NotBeNull();
             addedProfile.Value.Should().BeEquivalentTo(profile, options => options.Excluding(x => x.ProfileID));
-            addedProfile.Value.ProfileID.Should().Be(result.Value);
+            addedProfile.Value.AccountID.Should().Be(result.Value);
         }
 
         [Fact]

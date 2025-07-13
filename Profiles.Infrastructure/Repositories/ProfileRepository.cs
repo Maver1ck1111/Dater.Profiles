@@ -61,7 +61,9 @@ namespace Profiles.Infrastructure.Repositories
                 return Result<Guid>.Failure(500, "Failed to add profile to the database");
             }
 
-            return Result<Guid>.Success(profile.ProfileID);
+            _logger.LogInformation("Profile with AccountID {AccountID} successfully added", profile.AccountID);
+
+            return Result<Guid>.Success(profile.AccountID);
         }
 
         public async Task<Result<bool>> DeleteAsync(Guid id)
@@ -90,6 +92,8 @@ namespace Profiles.Infrastructure.Repositories
                 return Result<bool>.Failure(500, "Failed to delete profile from the database");
             }
 
+            _logger.LogInformation("Profile with AccountID {AccountID} successfully deleted", id);
+
             return Result<bool>.Success(true);
         }
 
@@ -110,6 +114,8 @@ namespace Profiles.Infrastructure.Repositories
                 _logger.LogError("Profile with the given ID does not exist");
                 return Result<Profile>.Failure(404, "Profile with the given ID does not exist");
             }
+
+            _logger.LogInformation("Profile with AccountID {AccountID} successfully retrieved", id);
 
             return Result<Profile>.Success(exsistingProfile);
         }
@@ -149,6 +155,8 @@ namespace Profiles.Infrastructure.Repositories
                 _logger.LogError("Failed to update profile in the database");
                 return Result<bool>.Failure(500, "Failed to update profile in the database");
             }
+
+            _logger.LogInformation("Profile with AccountID {AccountID} successfully updated", profile.AccountID);
 
             return Result<bool>.Success(true, 200);
         }
