@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Profiles.Application;
+using Profiles.Application.DTOs;
 using Profiles.Application.RepositoriesContracts;
 using Profiles.Domain;
 

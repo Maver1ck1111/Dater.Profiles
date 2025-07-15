@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Profiles.Application.Validators;
 using FluentValidation.AspNetCore;
+using Profiles.Application.Mappers;
 
 namespace Profiles.Application
 {
@@ -14,9 +15,14 @@ namespace Profiles.Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            services.AddValidatorsFromAssemblyContaining<ProfileValidator>();
+            services.AddValidatorsFromAssemblyContaining<ProfileRequestDTOValidator>();
             services.AddFluentValidationAutoValidation();
-            
+
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<ProfileRequestDTOToProfile>();
+            });
+
             return services;
         }
     }

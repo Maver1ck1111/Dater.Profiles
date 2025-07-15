@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Profiles.Application.DTOs;
+using Profiles.Domain;
 
 namespace Profiles.Application.ServicesContracts
 {
-    internal interface IProfileService
+    public interface IProfileService
     {
+        Task<Result<Guid>> AddProfileAsync(ProfileRequestDTO profileRequest);
+        Task<Result<Profile>> GetProfileByAccountIdAsync(Guid accountId);
+        Task<Result<bool>> UpdateProfileAsync(ProfileRequestDTO profileUpdateRequest);
+        Task<Result<bool>> DeleteProfileAsync(Guid profileId);
     }
 }
