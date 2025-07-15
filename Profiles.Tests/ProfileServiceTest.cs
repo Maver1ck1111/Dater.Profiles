@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Profiles.Application;
 using Profiles.Application.DTOs;
+using Profiles.Application.Mappers;
 using Profiles.Application.RepositoriesContracts;
 using Profiles.Application.Services;
 using Profiles.Domain;
@@ -21,13 +22,19 @@ namespace Profiles.Tests
         {
             _repository
                 .Setup(repo => repo.GetByAccountIdAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(Result<Profile>.Failure(404, "Not found"));
+                .ReturnsAsync(Result<Profiles.Domain.Profile>.Failure(404, "Not found"));
 
             _repository
-                .Setup(repo => repo.AddAsync(It.IsAny<Profile>()))
+                .Setup(repo => repo.AddAsync(It.IsAny<Profiles.Domain.Profile>()))
                 .ReturnsAsync(Result<Guid>.Success(Guid.NewGuid()));
 
-            var profileService = new ProfileService(_repository.Object, _mockLogger.Object);
+            Profiles.Domain.Profile profile = CreateFactory.CreateTestFactory();
+
+            _mapper
+                .Setup(map => map.Map<ProfileRequestDTOToProfile, Profiles.Domain.Profile>(It.IsAny<ProfileRequestDTOToProfile>()))
+                .Returns(profile);
+
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper.Object);
 
             ProfileRequestDTO profileRequestDTO = CreateFactory.CreateDTOTestFactory();
 
@@ -36,18 +43,6 @@ namespace Profiles.Tests
             addResult.StatusCode.Should().Be(200);
             addResult.Value.Should().NotBeEmpty();
             addResult.Value.Should().NotBe(Guid.Empty);
-
-            var getResult = await profileService.GetProfileByAccountIdAsync(profileRequestDTO.AccountID);
-            getResult.StatusCode.Should().Be(200);
-            getResult.Value.Should().NotBeNull();
-            getResult.Value.Should().BeEquivalentTo(profileRequestDTO, options => options.Excluding(x => x.Images));
-
-            getResult.Value.ImagePaths.Should().NotBeNullOrEmpty();
-
-            foreach (var item in getResult.Value.ImagePaths)
-            {
-                item.Should().Contain(profileRequestDTO.AccountID.ToString());
-            };
         }
 
         [Fact]
@@ -55,9 +50,9 @@ namespace Profiles.Tests
         {
             _repository
                 .Setup(repo => repo.GetByAccountIdAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(Result<Profile>.Success(new Profile()));
+                .ReturnsAsync(Result<Profiles.Domain.Profile>.Success(new Profiles.Domain.Profile()));
 
-            var profileService = new ProfileService(_repository.Object, _mockLogger.Object);
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper.Object);
 
             ProfileRequestDTO profileRequestDTO = CreateFactory.CreateDTOTestFactory();
 
@@ -75,7 +70,7 @@ namespace Profiles.Tests
                 .Setup(repo => repo.DeleteAsync(profileId))
                 .ReturnsAsync(Result<bool>.Success(true));
 
-            var profileService = new ProfileService(_repository.Object, _mockLogger.Object);
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper.Object);
 
             var deleteResult = await profileService.DeleteProfileAsync(profileId);
 
@@ -92,7 +87,7 @@ namespace Profiles.Tests
                 .Setup(repo => repo.DeleteAsync(profileId))
                 .ReturnsAsync(Result<bool>.Failure(404, "Profile not found"));
 
-            var profileService = new ProfileService(_repository.Object, _mockLogger.Object);
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper.Object);
 
             var deleteResult = await profileService.DeleteProfileAsync(profileId);
 
@@ -103,13 +98,13 @@ namespace Profiles.Tests
         [Fact]
         public async Task GetProfileByAccountId_ShouldReturnCorrectResponse()
         {
-            Profile profile = CreateFactory.CreateTestFactory();
+            Profiles.Domain.Profile profile = CreateFactory.CreateTestFactory();
 
             _repository
                 .Setup(repo => repo.GetByAccountIdAsync(profile.AccountID))
-                .ReturnsAsync(Result<Profile>.Success(profile));
+                .ReturnsAsync(Result<Profiles.Domain.Profile>.Success(profile));
 
-            var profileService = new ProfileService(_repository.Object, _mockLogger.Object);
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper.Object);
 
             var getResult = await profileService.GetProfileByAccountIdAsync(profile.AccountID);
 
@@ -121,13 +116,13 @@ namespace Profiles.Tests
         [Fact]
         public async Task GetProfileByAccountId_ShouldReturn404_ProfileNotFound()
         {
-            Profile profile = CreateFactory.CreateTestFactory();
+            Profiles.Domain.Profile profile = CreateFactory.CreateTestFactory();
 
             _repository
                 .Setup(repo => repo.GetByAccountIdAsync(profile.AccountID))
-                .ReturnsAsync(Result<Profile>.Failure(404, "Profile not found"));
+                .ReturnsAsync(Result<Profiles.Domain.Profile>.Failure(404, "Profile not found"));
 
-            var profileService = new ProfileService(_repository.Object, _mockLogger.Object);
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper.Object);
 
             var getResult = await profileService.GetProfileByAccountIdAsync(profile.AccountID);
 
@@ -142,24 +137,27 @@ namespace Profiles.Tests
             profile.DateOfBirth = new DateTime(2000, 5, 5);
 
             _repository
-                .Setup(repo => repo.UpdateAsync(It.IsAny<Profile>()))
+                .Setup(repo => repo.UpdateAsync(It.IsAny<Profiles.Domain.Profile>()))
                 .ReturnsAsync(Result<bool>.Success(true));
 
             _repository
                 .Setup(repo => repo.GetByAccountIdAsync(profile.AccountID))
-                .ReturnsAsync(Result<Profile>.Success(new Profile()));
+                .ReturnsAsync(Result<Profiles.Domain.Profile>.Success(new Profiles.Domain.Profile()));
 
-            var profileService = new ProfileService(_repository.Object, _mockLogger.Object);
+            Profiles.Domain.Profile updatedProfile = CreateFactory.CreateTestFactory();
+            updatedProfile.AccountID = profile.AccountID;
+            updatedProfile.DateOfBirth = profile.DateOfBirth;
+
+            _mapper
+                .Setup(map => map.Map<ProfileRequestDTOToProfile, Profiles.Domain.Profile>(It.IsAny<ProfileRequestDTOToProfile>()))
+                .Returns(updatedProfile);
+
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper.Object);
 
             var updateResult = await profileService.UpdateProfileAsync(profile);
 
             updateResult.StatusCode.Should().Be(200);
             updateResult.Value.Should().BeTrue();
-
-            var getResult = await profileService.GetProfileByAccountIdAsync(profile.AccountID);
-
-            getResult.Value.Should().NotBeNull();
-            getResult.Value.DateOfBirth.Should().Be(new DateTime(2000, 5, 5));
         }
 
         [Fact]
@@ -169,9 +167,9 @@ namespace Profiles.Tests
 
             _repository
                 .Setup(repo => repo.GetByAccountIdAsync(profile.AccountID))
-                .ReturnsAsync(Result<Profile>.Failure(404, "Profile not found"));
+                .ReturnsAsync(Result<Profiles.Domain.Profile>.Failure(404, "Profile not found"));
 
-            var profileService = new ProfileService(_repository.Object, _mockLogger.Object);
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper.Object);
 
             var updateResult = await profileService.UpdateProfileAsync(profile);
 

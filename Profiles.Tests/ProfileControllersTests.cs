@@ -15,17 +15,6 @@ namespace Profiles.Tests
     {
         private readonly Mock<ILogger<ProfileController>> _logger = new Mock<ILogger<ProfileController>>();
         private readonly Mock<IProfileRepository> _profileRepository = new Mock<IProfileRepository>();
-        private Profile CreateTestFactory() => new Profile()
-        {
-            Name = "Test User",
-            Description = "Test Description",
-            DateOfBirth = new DateTime(1990, 1, 1),
-            AccountID = Guid.NewGuid(),
-            BookInterest = BookInterest.Fantasy,
-            MovieInterest = MovieInterest.Thriller,
-            MusicInterest = MusicInterest.Rock,
-            ImagePaths = new string[] { "path/to/image1.jpg", "path/to/image2.jpg" },
-        };
 
         [Fact]
         public async Task CreateProfile_ShouldReturnOkResult()
@@ -37,7 +26,7 @@ namespace Profiles.Tests
             _profileRepository.Setup(repo => repo.AddAsync(It.IsAny<Profiles.Domain.Profile>()))
                 .ReturnsAsync(Result<Guid>.Success(accountID));
 
-            var result = await controller.CreateProfile(CreateTestFactory());
+            var result = await controller.CreateProfile(CreateFactory.CreateTestFactory());
 
             result.Result.Should().BeOfType<OkObjectResult>();
 
@@ -55,7 +44,7 @@ namespace Profiles.Tests
             _profileRepository.Setup(repo => repo.AddAsync(It.IsAny<Profile>()))
                 .ReturnsAsync(Result<Guid>.Failure(409, "Profile already exist"));
 
-            var result = await controller.CreateProfile(CreateTestFactory());
+            var result = await controller.CreateProfile(CreateFactory.CreateTestFactory());
 
             result.Result.Should().BeOfType<ConflictObjectResult>();
 
@@ -70,7 +59,7 @@ namespace Profiles.Tests
             var controller = new ProfileController(_profileRepository.Object, _logger.Object);
 
             Guid accountID = Guid.NewGuid();
-            var profile = CreateTestFactory();
+            var profile = CreateFactory.CreateTestFactory();
             profile.AccountID = accountID;
 
             _profileRepository.Setup(repo => repo.GetByAccountIdAsync(accountID))
@@ -110,7 +99,7 @@ namespace Profiles.Tests
         {
             var controller = new ProfileController(_profileRepository.Object, _logger.Object);
 
-            var profile = CreateTestFactory();
+            var profile = CreateFactory.CreateTestFactory();
 
             _profileRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Profile>()))
                 .ReturnsAsync(Result<bool>.Success(true));
@@ -132,7 +121,7 @@ namespace Profiles.Tests
             _profileRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Profile>()))
                 .ReturnsAsync(Result<bool>.Failure(404, "Profile not found"));
 
-            var result = await controller.UpdateProfile(CreateTestFactory());
+            var result = await controller.UpdateProfile(CreateFactory.CreateTestFactory());
 
             result.Result.Should().BeOfType<NotFoundObjectResult>();
 

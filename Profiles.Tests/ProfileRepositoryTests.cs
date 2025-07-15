@@ -25,23 +25,11 @@ namespace Profiles.Tests
             _repository = new ProfileRepository(new ProfilesDbContext(), _loggerMock.Object);
         }
 
-        private Profile CreateTestFactory() => new Profile()
-        {
-            Name = "Test User",
-            Description = "Test Description",
-            DateOfBirth = new DateTime(1990, 1, 1),
-            AccountID = Guid.NewGuid(),
-            BookInterest = BookInterest.Fantasy,
-            MovieInterest = MovieInterest.Thriller,
-            MusicInterest = MusicInterest.Rock,
-            ImagePaths = new string [] { "path/to/image1.jpg", "path/to/image2.jpg" },
-        };
-
 
         [Fact]
         public async Task AddAsync_ShouldReturnCorrecteResponse()
         {
-            var profile = CreateTestFactory();
+            var profile = CreateFactory.CreateTestFactory();
 
             var result = await _repository.AddAsync(profile);
 
@@ -61,10 +49,10 @@ namespace Profiles.Tests
         [Fact]
         public async Task AddAsync_ShouldReturn409Error_ProfileAlreadyExist()
         {
-            var addedProfile = CreateTestFactory();
+            var addedProfile = CreateFactory.CreateTestFactory();
             await _repository.AddAsync(addedProfile);
 
-            var anotherProfile = CreateTestFactory();
+            var anotherProfile = CreateFactory.CreateTestFactory();
             anotherProfile.AccountID = addedProfile.AccountID;
 
             var result = await _repository.AddAsync(anotherProfile);
@@ -75,7 +63,7 @@ namespace Profiles.Tests
         [Fact]
         public async Task GetByIdAsync_ShouldReturnCorrectProfile()
         {
-            var profile = CreateTestFactory();
+            var profile = CreateFactory.CreateTestFactory();
 
             await _repository.AddAsync(profile);
 
@@ -97,11 +85,11 @@ namespace Profiles.Tests
         [Fact]
         public async Task UpdateAsync_ShouldReturnCorrectResponse()
         {
-            var profile = CreateTestFactory();
+            var profile = CreateFactory.CreateTestFactory();
 
             await _repository.AddAsync(profile);
 
-            var updateProfile = CreateTestFactory();
+            var updateProfile = CreateFactory.CreateTestFactory();
 
             updateProfile.AccountID = profile.AccountID;
             updateProfile.DateOfBirth = new DateTime(1995, 5, 5);
@@ -122,7 +110,7 @@ namespace Profiles.Tests
         [Fact]
         public async Task UpdateAsync_ShouldReturn404Error_IncorectProfileID()
         {
-            var profile = CreateTestFactory();
+            var profile = CreateFactory.CreateTestFactory();
             profile.ProfileID = Guid.NewGuid();
             var result = await _repository.UpdateAsync(profile);
 
@@ -133,7 +121,7 @@ namespace Profiles.Tests
         [Fact]
         public async Task DeleteAsync_ShouldReturnCorrectResponse()
         {
-            var profile = CreateTestFactory();
+            var profile = CreateFactory.CreateTestFactory();
 
             await _repository.AddAsync(profile);
 
