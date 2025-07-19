@@ -8,25 +8,27 @@ using Profiles.Domain;
 using Profiles.Domain.Enums;
 using Profiles.WebApi.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using Profiles.Application.ServicesContracts;
+using Profiles.Application.DTOs;
 
 namespace Profiles.Tests
 {
     public class ProfileControllersTests
     {
         private readonly Mock<ILogger<ProfileController>> _logger = new Mock<ILogger<ProfileController>>();
-        private readonly Mock<IProfileRepository> _profileRepository = new Mock<IProfileRepository>();
+        private readonly Mock<IProfileService> _profileService = new Mock<IProfileService>();
 
         [Fact]
         public async Task CreateProfile_ShouldReturnOkResult()
         {
-            var controller = new ProfileController(_profileRepository.Object, _logger.Object);
-
             Guid accountID = Guid.NewGuid();
 
-            _profileRepository.Setup(repo => repo.AddAsync(It.IsAny<Profiles.Domain.Profile>()))
+            _profileService.Setup(repo => repo.AddProfileAsync(It.IsAny<ProfileRequestDTO>()))
                 .ReturnsAsync(Result<Guid>.Success(accountID));
 
-            var result = await controller.CreateProfile(CreateFactory.CreateTestFactory());
+            var controller = new ProfileController(_profileService.Object, _logger.Object);
+
+            var result = await controller.CreateProfile(CreateFactory.CreateDTOTestFactory());
 
             result.Result.Should().BeOfType<OkObjectResult>();
 
@@ -39,12 +41,12 @@ namespace Profiles.Tests
         [Fact]
         public async Task CreateProfile_ShouldReturn409_ConflictWhenProfileAlreadyExists()
         {
-            var controller = new ProfileController(_profileRepository.Object, _logger.Object);
-
-            _profileRepository.Setup(repo => repo.AddAsync(It.IsAny<Profile>()))
+            _profileService.Setup(repo => repo.AddProfileAsync(It.IsAny<ProfileRequestDTO>()))
                 .ReturnsAsync(Result<Guid>.Failure(409, "Profile already exist"));
 
-            var result = await controller.CreateProfile(CreateFactory.CreateTestFactory());
+            var controller = new ProfileController(_profileService.Object, _logger.Object);
+
+            var result = await controller.CreateProfile(CreateFactory.CreateDTOTestFactory());
 
             result.Result.Should().BeOfType<ConflictObjectResult>();
 
@@ -56,14 +58,15 @@ namespace Profiles.Tests
         [Fact]
         public async Task GetProfile_ShouldReturnOkResult()
         {
-            var controller = new ProfileController(_profileRepository.Object, _logger.Object);
-
             Guid accountID = Guid.NewGuid();
+
             var profile = CreateFactory.CreateTestFactory();
             profile.AccountID = accountID;
 
-            _profileRepository.Setup(repo => repo.GetByAccountIdAsync(accountID))
+            _profileService.Setup(repo => repo.GetProfileByAccountIdAsync(accountID))
                 .ReturnsAsync(Result<Profile>.Success(profile));
+
+            var controller = new ProfileController(_profileService.Object, _logger.Object);
 
             var result = await controller.GetProfileByAccountId(accountID);
 
@@ -78,12 +81,12 @@ namespace Profiles.Tests
         [Fact]
         public async Task GetProfile_ShouldReturn404_InccorectAccountId()
         {
-            var controller = new ProfileController(_profileRepository.Object, _logger.Object);
-
             Guid accountID = Guid.NewGuid();
 
-            _profileRepository.Setup(repo => repo.GetByAccountIdAsync(accountID))
+            _profileService.Setup(repo => repo.GetProfileByAccountIdAsync(accountID))
                 .ReturnsAsync(Result<Profile>.Failure(404, "Profile not found"));
+
+            var controller = new ProfileController(_profileService.Object, _logger.Object);
 
             var result = await controller.GetProfileByAccountId(accountID);
 
@@ -97,12 +100,12 @@ namespace Profiles.Tests
         [Fact]
         public async Task UpdateProfile_ShouldReturnOkResult()
         {
-            var controller = new ProfileController(_profileRepository.Object, _logger.Object);
-
-            var profile = CreateFactory.CreateTestFactory();
-
-            _profileRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Profile>()))
+            _profileService.Setup(repo => repo.UpdateProfileAsync(It.IsAny<ProfileRequestDTO>()))
                 .ReturnsAsync(Result<bool>.Success(true));
+
+            var controller = new ProfileController(_profileService.Object, _logger.Object);
+
+            var profile = CreateFactory.CreateDTOTestFactory();
 
             var result = await controller.UpdateProfile(profile);
 
@@ -116,12 +119,12 @@ namespace Profiles.Tests
         [Fact]
         public async Task UpdateProfile_ShouldReturn404_InccorectAccountId()
         {
-            var controller = new ProfileController(_profileRepository.Object, _logger.Object);
-
-            _profileRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Profile>()))
+            _profileService.Setup(repo => repo.UpdateProfileAsync(It.IsAny<ProfileRequestDTO>()))
                 .ReturnsAsync(Result<bool>.Failure(404, "Profile not found"));
 
-            var result = await controller.UpdateProfile(CreateFactory.CreateTestFactory());
+            var controller = new ProfileController(_profileService.Object, _logger.Object);
+
+            var result = await controller.UpdateProfile(CreateFactory.CreateDTOTestFactory());
 
             result.Result.Should().BeOfType<NotFoundObjectResult>();
 
@@ -133,12 +136,12 @@ namespace Profiles.Tests
         [Fact]
         public async Task DeleteProfile_ShouldReturnOkResult()
         {
-            var controller = new ProfileController(_profileRepository.Object, _logger.Object);
-
             Guid profileId = Guid.NewGuid();
 
-            _profileRepository.Setup(repo => repo.DeleteAsync(profileId))
+            _profileService.Setup(repo => repo.DeleteProfileAsync(profileId))
                 .ReturnsAsync(Result<bool>.Success(true));
+
+            var controller = new ProfileController(_profileService.Object, _logger.Object);
 
             var result = await controller.DeleteProfile(profileId);
 
@@ -152,12 +155,12 @@ namespace Profiles.Tests
         [Fact]
         public async Task DeleteProfile_ShouldReturn404_InccorectProfileId()
         {
-            var controller = new ProfileController(_profileRepository.Object, _logger.Object);
-
             Guid profileId = Guid.NewGuid();
 
-            _profileRepository.Setup(repo => repo.DeleteAsync(profileId))
+            _profileService.Setup(repo => repo.DeleteProfileAsync(profileId))
                 .ReturnsAsync(Result<bool>.Failure(404, "Profile not found"));
+
+            var controller = new ProfileController(_profileService.Object, _logger.Object);
 
             var result = await controller.DeleteProfile(profileId);
 

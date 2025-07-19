@@ -21,12 +21,16 @@ namespace Profiles.Application.Services
         private readonly IProfileRepository _profileRepository;
         private readonly ILogger<ProfileService> _logger;
         private readonly IMapper _mapper;
-        private readonly string _directory = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.Parent?.FullName + "/ProfilePics";
+        private readonly string _directory;
         public ProfileService(IProfileRepository profileRepository, ILogger<ProfileService> logger, IMapper mapper)
         {
             _profileRepository = profileRepository;
             _logger = logger;
             _mapper = mapper;
+
+            string baseDir = AppContext.BaseDirectory; // обычно это bin/Debug/net8.0
+            string root = Path.GetFullPath(Path.Combine(baseDir, "../../../../"));
+            _directory = Path.Combine(root, "ProfilePics");
         }
 
         public async Task<Result<Guid>> AddProfileAsync(ProfileRequestDTO profileRequest)
@@ -59,11 +63,11 @@ namespace Profiles.Application.Services
 
                 var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
 
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
                 if (!allowedExtensions.Contains(extension))
                     continue;
 
-                var fileName = $"{profile.AccountID}{counter}{extension}";
+                var fileName = $"{profile.AccountID}.{counter}.{extension}";
 
                 var fullPath = Path.Combine(_directory, fileName);
 

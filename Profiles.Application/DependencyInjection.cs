@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Profiles.Application.Validators;
 using FluentValidation.AspNetCore;
 using Profiles.Application.Mappers;
+using Profiles.Application.ServicesContracts;
+using Profiles.Application.Services;
 
 namespace Profiles.Application
 {
@@ -17,6 +19,8 @@ namespace Profiles.Application
         {
             services.AddValidatorsFromAssemblyContaining<ProfileRequestDTOValidator>();
             services.AddFluentValidationAutoValidation();
+
+            services.AddTransient<IProfileService, ProfileService>();
 
             services.AddAutoMapper(cfg =>
             {
