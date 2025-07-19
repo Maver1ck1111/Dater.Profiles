@@ -44,11 +44,11 @@ namespace Profiles.Infrastructure.Repositories
 
             profile.ProfileID = Guid.NewGuid();
 
-            string addQuery = "INSERT INTO \"Profiles\" (\"AccountID\", \"ProfileID\", \"ImagePaths\", \"Name\"," +
+            string addQuery = "INSERT INTO \"Profiles\" (\"AccountID\", \"ProfileID\", \"ImagePaths\", \"Name\", \"Gender\"," +
                 " \"Description\", \"DateOfBirth\", \"BookInterest\", \"SportInterest\", \"MovieInterest\"," +
                 " \"MusicInterest\", \"FoodInterest\", \"LifestyleInterest\", \"TravelInterest\")" +
 
-                "VALUES(@AccountID, @ProfileID, @ImagePaths, @Name, @Description, @DateOfBirth, @BookInterest, @SportInterest, " +
+                "VALUES(@AccountID, @ProfileID, @ImagePaths, @Name, @Gender, @Description, @DateOfBirth, @BookInterest, @SportInterest, " +
                 "@MovieInterest, @MusicInterest, @FoodInterest, @LifestyleInterest, @TravelInterest)";
 
             int rows = await _dbContext.DbConnection.ExecuteAsync(addQuery, profile);
@@ -140,7 +140,7 @@ namespace Profiles.Infrastructure.Repositories
                 return Result<bool>.Failure(404, "Profile with the given AccountID does not exist");
             }
 
-            string updateQuery = "UPDATE \"Profiles\" SET \"ImagePaths\" = @ImagePaths, \"Name\" = @Name, " +
+            string updateQuery = "UPDATE \"Profiles\" SET \"ImagePaths\" = @ImagePaths, \"Name\" = @Name, \"Gender\" = @Gender," +
                 "\"Description\" = @Description, \"DateOfBirth\" = @DateOfBirth, \"BookInterest\" = @BookInterest, " +
                 "\"SportInterest\" = @SportInterest, \"MovieInterest\" = @MovieInterest, \"MusicInterest\" = @MusicInterest, " +
                 "\"FoodInterest\" = @FoodInterest, \"LifestyleInterest\" = @LifestyleInterest, \"TravelInterest\" = @TravelInterest " +

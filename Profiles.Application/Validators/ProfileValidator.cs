@@ -33,6 +33,9 @@ namespace Profiles.Application.Validators
                 .NotNull().WithMessage("You must upload at least one image.")
                 .Must(paths => paths.Length <= 3 && paths.Length != 0).WithMessage("You can upload a maximum of 3 images.");
 
+            RuleFor(x => x.Gender)
+                .IsInEnum();
+
             RuleFor(x => x)
                 .Must(HaveAtLeastThreeInterests).WithMessage("You must select at least three interests from the available options.");
         }

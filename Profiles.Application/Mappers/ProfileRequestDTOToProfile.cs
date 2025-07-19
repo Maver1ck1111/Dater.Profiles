@@ -20,7 +20,9 @@ namespace Profiles.Application.Mappers
                 .ForMember(dest => dest.MusicInterest, opt => opt.MapFrom(src => src.MusicInterest))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
-                .ForMember(dest => dest.TravelInterest, opt => opt.MapFrom(src => src.TravelInterest));
+                .ForMember(dest => dest.TravelInterest, opt => opt.MapFrom(src => src.TravelInterest))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender));
+                
         }
     }
 }

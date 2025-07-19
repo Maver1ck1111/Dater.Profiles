@@ -14,6 +14,7 @@ namespace Profiles.Application.DTOs
         public IFormFile[] Images { get; set; } = new IFormFile[3];
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
+        public Gender Gender { get; set; }
         public DateTime DateOfBirth { get; set; }
         public BookInterest? BookInterest { get; set; }
         public SportInterest? SportInterest { get; set; }
