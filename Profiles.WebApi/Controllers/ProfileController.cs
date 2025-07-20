@@ -4,6 +4,7 @@ using Profiles.Application.DTOs;
 using Profiles.Application.RepositoriesContracts;
 using Profiles.Application.ServicesContracts;
 using Profiles.Domain;
+using System.IO;
 
 namespace Profiles.WebApi.Controllers
 {
@@ -97,6 +98,75 @@ namespace Profiles.WebApi.Controllers
 
             _logger.LogInformation("Profile updated successfully for account ID: {AccountId}", request.AccountID);
             return Ok(result.Value);
+        }
+
+        [HttpPost("set-photo/{accountID}")]
+        public async Task<IActionResult> SetPhoto(Guid accountID, [FromForm] IEnumerable<IFormFile> photos)
+        {
+            if (accountID == Guid.Empty)
+            {
+                _logger.LogError("Account ID cannot be empty");
+                return BadRequest("Account ID cannot be empty");
+            }
+
+            if (!photos.Any())
+            {
+                _logger.LogError("Must be at least 1 photo");
+                return BadRequest("Account ID cannot be empty");
+            }
+
+            if(photos.Count() > 3)
+            {
+                _logger.LogError("Cannot upload more than 3 photos");
+                return BadRequest("Cannot upload more than 3 photos");
+            }
+
+            Result<Profile> getResult = await _profileRepository.GetProfileByAccountIdAsync(accountID);
+
+            if(getResult.StatusCode == 404)
+            {
+                _logger.LogError("Profile with id: {id} not found", accountID);
+                return NotFound("Profile not found");
+            }
+
+            if(getResult.StatusCode != 200)
+            {
+                _logger.LogError("Failed to retrieve profile: {ErrorMessage}", getResult.ErrorMessage);
+                return StatusCode(getResult.StatusCode, getResult.ErrorMessage);
+            }
+
+            string baseDir = AppContext.BaseDirectory;
+            string root = Path.GetFullPath(Path.Combine(baseDir, "../../../../"));
+            string directory = Path.Combine(root, "ProfilePics");
+
+            int counter = 0;
+
+            foreach (var photo in photos)
+            {
+                if (photo == null || photo.Length == 0)
+                    continue;
+
+                var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
+
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+                if (!allowedExtensions.Contains(extension))
+                    continue;
+
+                var fileName = $"{getResult.Value.AccountID}.{counter}.{extension}";
+
+                var fullPath = Path.Combine(directory, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await photo.CopyToAsync(stream);
+                }
+
+                getResult.Value.ImagePaths[counter++] = fileName;
+            }
+
+            _logger.LogInformation("Setting photo for account ID: {AccountId}", accountID);
+
+            return Ok();
         }
 
         [HttpDelete("{profileId}")]

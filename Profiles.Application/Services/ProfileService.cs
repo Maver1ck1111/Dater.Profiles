@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Profiles.Application.DTOs;
 using Profiles.Application.Mappers;
@@ -21,16 +23,11 @@ namespace Profiles.Application.Services
         private readonly IProfileRepository _profileRepository;
         private readonly ILogger<ProfileService> _logger;
         private readonly IMapper _mapper;
-        private readonly string _directory;
         public ProfileService(IProfileRepository profileRepository, ILogger<ProfileService> logger, IMapper mapper)
         {
             _profileRepository = profileRepository;
             _logger = logger;
             _mapper = mapper;
-
-            string baseDir = AppContext.BaseDirectory; // обычно это bin/Debug/net8.0
-            string root = Path.GetFullPath(Path.Combine(baseDir, "../../../../"));
-            _directory = Path.Combine(root, "ProfilePics");
         }
 
         public async Task<Result<Guid>> AddProfileAsync(ProfileRequestDTO profileRequest)
@@ -48,36 +45,6 @@ namespace Profiles.Application.Services
             }
 
             Profiles.Domain.Profile profile = _mapper.Map<Profiles.Domain.Profile>(profileRequest);
-
-            if (!Directory.Exists(_directory))
-            {
-                Directory.CreateDirectory(_directory);
-            }
-
-            int counter = 0;
-
-            foreach (var photo in profileRequest.Images)
-            {
-                if (photo == null || photo.Length == 0)
-                    continue;
-
-                var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
-
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-                if (!allowedExtensions.Contains(extension))
-                    continue;
-
-                var fileName = $"{profile.AccountID}.{counter}.{extension}";
-
-                var fullPath = Path.Combine(_directory, fileName);
-
-                using (var stream = new FileStream(fullPath, FileMode.Create))
-                {
-                    await photo.CopyToAsync(stream);
-                }
-
-                profile.ImagePaths[counter++] = fileName;
-            }
 
             Result<Guid> result = await _profileRepository.AddAsync(profile);
 
@@ -187,36 +154,6 @@ namespace Profiles.Application.Services
             }
 
             Profiles.Domain.Profile profile = _mapper.Map<Profiles.Domain.Profile>(profileUpdateRequest);
-
-            if (!Directory.Exists(_directory))
-            {
-                Directory.CreateDirectory(_directory);
-            }
-
-            int counter = 0;
-
-            foreach (var photo in profileUpdateRequest.Images)
-            {
-                if (photo == null || photo.Length == 0)
-                    continue;
-
-                var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
-
-                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-                if (!allowedExtensions.Contains(extension))
-                    continue;
-
-                var fileName = $"{profile.AccountID}{counter}{extension}";
-
-                var fullPath = Path.Combine(_directory, fileName);
-
-                using (var stream = new FileStream(fullPath, FileMode.Create))
-                {
-                    await photo.CopyToAsync(stream);
-                }
-
-                profile.ImagePaths[counter++] = fileName;
-            }
 
             Result<bool> result = await _profileRepository.UpdateAsync(profile);
 

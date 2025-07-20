@@ -29,10 +29,6 @@ namespace Profiles.Application.Validators
                 .NotEmpty().WithMessage("Account ID is required.")
                 .Must(id => id != Guid.Empty).WithMessage("Account ID cannot be an empty GUID.");
 
-            RuleFor(x => x.Images)
-                .NotNull().WithMessage("You must upload at least one image.")
-                .Must(paths => paths.Length <= 3 && paths.Length != 0).WithMessage("You can upload a maximum of 3 images.");
-
             RuleFor(x => x.Gender)
                 .IsInEnum();
 

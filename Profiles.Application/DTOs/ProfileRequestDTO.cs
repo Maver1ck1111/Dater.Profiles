@@ -11,7 +11,6 @@ namespace Profiles.Application.DTOs
     public class ProfileRequestDTO
     {
         public Guid AccountID { get; set; }
-        public IFormFile[] Images { get; set; } = new IFormFile[3];
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
         public Gender Gender { get; set; }

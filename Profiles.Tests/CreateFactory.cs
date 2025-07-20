@@ -28,12 +28,7 @@ namespace Profiles.Tests
             AccountID = Guid.NewGuid(),
             BookInterest = BookInterest.Fantasy,
             MovieInterest = MovieInterest.Thriller,
-            MusicInterest = MusicInterest.Rock,
-            Images = new IFormFile[] 
-            {
-                CreateTestFormFile("test1.jpg", "image/jpeg", "Dummy content 1"),
-                CreateTestFormFile("test2.png", "image/png", "Dummy content 2")
-            }
+            MusicInterest = MusicInterest.Rock
         };
 
         private static IFormFile CreateTestFormFile(string fileName, string contentType, string content)
