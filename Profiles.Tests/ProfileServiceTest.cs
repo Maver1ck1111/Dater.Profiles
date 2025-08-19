@@ -43,12 +43,9 @@ namespace Profiles.Tests
 
             Profiles.Domain.Profile profile = CreateFactory.CreateTestFactory();
 
-
             var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper);
 
-            ProfileRequestDTO profileRequestDTO = CreateFactory.CreateDTOTestFactory();
-
-            var addResult = await profileService.AddProfileAsync(profileRequestDTO);
+            var addResult = await profileService.AddProfileAsync(profile);
 
             addResult.StatusCode.Should().Be(200);
             addResult.Value.Should().NotBeEmpty();
@@ -64,9 +61,9 @@ namespace Profiles.Tests
 
             var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper);
 
-            ProfileRequestDTO profileRequestDTO = CreateFactory.CreateDTOTestFactory();
+            Profiles.Domain.Profile profile = CreateFactory.CreateTestFactory();
 
-            var addResult = await profileService.AddProfileAsync(profileRequestDTO);
+            var addResult = await profileService.AddProfileAsync(profile);
 
             addResult.StatusCode.Should().Be(409);
         }
@@ -151,7 +148,7 @@ namespace Profiles.Tests
         [Fact]
         public async Task UpdateProfile_ShouldReturnCorrectResponse()
         {
-            ProfileRequestDTO profile = CreateFactory.CreateDTOTestFactory();
+            Profiles.Domain.Profile profile = CreateFactory.CreateTestFactory();
             profile.DateOfBirth = new DateTime(2000, 5, 5);
 
             _repository
@@ -177,7 +174,7 @@ namespace Profiles.Tests
         [Fact]
         public async Task UpdateProfile_ShouldReturn404_ProfileNotFound()
         {
-            ProfileRequestDTO profile = CreateFactory.CreateDTOTestFactory();
+            Profiles.Domain.Profile profile = CreateFactory.CreateTestFactory();
 
             _repository
                 .Setup(repo => repo.UpdateAsync(It.IsAny<Profiles.Domain.Profile>()))

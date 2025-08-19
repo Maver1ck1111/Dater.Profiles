@@ -5,9 +5,9 @@ namespace Profiles.Application.ServicesContracts
 {
     public interface IProfileService
     {
-        Task<Result<Guid>> AddProfileAsync(ProfileRequestDTO profileRequest);
+        Task<Result<Guid>> AddProfileAsync(Profiles.Domain.Profile profileRequest);
         Task<Result<Profile>> GetProfileByAccountIdAsync(Guid accountId);
-        Task<Result<bool>> UpdateProfileAsync(ProfileRequestDTO profileUpdateRequest);
+        Task<Result<bool>> UpdateProfileAsync(Profiles.Domain.Profile profileUpdateRequest);
         Task<Result<bool>> DeleteProfileAsync(Guid profileId);
     }
 }

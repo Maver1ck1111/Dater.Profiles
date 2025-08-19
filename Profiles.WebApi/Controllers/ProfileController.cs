@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Profiles.Application;
 using Profiles.Application.DTOs;
 using Profiles.Application.RepositoriesContracts;
@@ -14,10 +15,12 @@ namespace Profiles.WebApi.Controllers
     {
         private readonly IProfileService _profileRepository;
         private readonly ILogger<ProfileController> _logger;
-        public ProfileController(IProfileService profileService, ILogger<ProfileController> logger)
+        private readonly IMapper _mapper;
+        public ProfileController(IProfileService profileService, ILogger<ProfileController> logger, IMapper mapper)
         {
             _profileRepository = profileService;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost]
@@ -25,7 +28,7 @@ namespace Profiles.WebApi.Controllers
         {
             _logger.LogInformation("Creating profile for account ID: {AccountId}", request.AccountID);
 
-            Result<Guid> result = await _profileRepository.AddProfileAsync(request);
+            Result<Guid> result = await _profileRepository.AddProfileAsync(_mapper.Map<Profiles.Domain.Profile>(request));
 
             if(result.StatusCode == 409)
             {
@@ -51,9 +54,9 @@ namespace Profiles.WebApi.Controllers
         }
 
         [HttpGet("{accountId}")]
-        public async Task<ActionResult<Profile>> GetProfileByAccountId(Guid accountId)
+        public async Task<ActionResult<Profiles.Domain.Profile>> GetProfileByAccountId(Guid accountId)
         {
-            Result<Profile> result = await _profileRepository.GetProfileByAccountIdAsync(accountId);
+            Result<Profiles.Domain.Profile> result = await _profileRepository.GetProfileByAccountIdAsync(accountId);
 
             if(result.StatusCode == 404)
             {
@@ -76,7 +79,7 @@ namespace Profiles.WebApi.Controllers
         {
             _logger.LogInformation("Updating profile for account ID: {AccountId}", request.AccountID);
 
-            Result<bool> result = await _profileRepository.UpdateProfileAsync(request);
+            Result<bool> result = await _profileRepository.UpdateProfileAsync(_mapper.Map<Profiles.Domain.Profile>(request));
 
             if(result.StatusCode == 400)
             {
@@ -101,7 +104,7 @@ namespace Profiles.WebApi.Controllers
         }
 
         [HttpPost("set-photo/{accountID}")]
-        public async Task<IActionResult> SetPhoto(Guid accountID, [FromForm] IEnumerable<IFormFile> photos)
+        public async Task<IActionResult> SetPhoto([FromRoute] Guid accountID, [FromForm] IEnumerable<IFormFile> photos)
         {
             if (accountID == Guid.Empty)
             {
@@ -121,7 +124,7 @@ namespace Profiles.WebApi.Controllers
                 return BadRequest("Cannot upload more than 3 photos");
             }
 
-            Result<Profile> getResult = await _profileRepository.GetProfileByAccountIdAsync(accountID);
+            Result<Profiles.Domain.Profile> getResult = await _profileRepository.GetProfileByAccountIdAsync(accountID);
 
             if(getResult.StatusCode == 404)
             {
@@ -164,6 +167,8 @@ namespace Profiles.WebApi.Controllers
                 getResult.Value.ImagePaths[counter++] = fileName;
             }
 
+            await _profileRepository.UpdateProfileAsync(getResult.Value);
+
             _logger.LogInformation("Setting photo for account ID: {AccountId}", accountID);
 
             return Ok();
@@ -193,12 +198,12 @@ namespace Profiles.WebApi.Controllers
             return Ok(result.Value);
         }
 
-        [HttpGet("/getPhotoByID/{accountID}/{index}")]
+        [HttpGet("getPhotoByID/{accountID}/{index}")]
         public async Task<IActionResult> GetPhotos(Guid accountID, int index)
         {
             _logger.LogInformation("Getting photos by id: {id}", accountID);
 
-            Result<Profile> profileResult = await _profileRepository.GetProfileByAccountIdAsync(accountID);
+            Result<Profiles.Domain.Profile> profileResult = await _profileRepository.GetProfileByAccountIdAsync(accountID);
 
             if (profileResult.StatusCode == 404)
             {

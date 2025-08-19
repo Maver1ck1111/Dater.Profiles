@@ -1,20 +1,7 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Profiles.Application.DTOs;
-using Profiles.Application.Mappers;
 using Profiles.Application.RepositoriesContracts;
 using Profiles.Application.ServicesContracts;
-using Profiles.Domain;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Profiles.Application.Services
 {
@@ -30,7 +17,7 @@ namespace Profiles.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<Result<Guid>> AddProfileAsync(ProfileRequestDTO profileRequest)
+        public async Task<Result<Guid>> AddProfileAsync(Profiles.Domain.Profile profileRequest)
         {
             if (profileRequest == null)
             {
@@ -139,7 +126,7 @@ namespace Profiles.Application.Services
             return Result<Profiles.Domain.Profile>.Success(result.Value);
         }
 
-        public async Task<Result<bool>> UpdateProfileAsync(ProfileRequestDTO profileUpdateRequest)
+        public async Task<Result<bool>> UpdateProfileAsync(Profiles.Domain.Profile profileUpdateRequest)
         {
             if(profileUpdateRequest == null)
             {
