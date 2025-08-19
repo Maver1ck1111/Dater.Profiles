@@ -22,5 +22,6 @@ namespace Profiles.Application.DTOs
         public FoodInterest? FoodInterest { get; set; }
         public LifestyleInterest? LifestyleInterest { get; set; }
         public TravelInterest? TravelInterest { get; set; }
+        public HobbyInterest? HobbyInterest { get; set; }
     }
 }

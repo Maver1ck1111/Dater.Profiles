@@ -47,6 +47,7 @@ namespace Profiles.Application.Validators
             if (profile.FoodInterest != null) selectedInterests++;
             if (profile.LifestyleInterest != null) selectedInterests++;
             if (profile.TravelInterest != null) selectedInterests++;
+            if (profile.HobbyInterest != null) selectedInterests++;
 
             return selectedInterests >= 3;
         }
