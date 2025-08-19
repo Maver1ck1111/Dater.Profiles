@@ -142,6 +142,20 @@ namespace Profiles.WebApi.Controllers
             string root = Path.GetFullPath(Path.Combine(baseDir, "../../../../"));
             string directory = Path.Combine(root, "ProfilePics");
 
+            string[] paths = getResult.Value.ImagePaths;
+
+            for (int i = 0; i < paths.Length; i++)
+            {
+                if (paths[i] == null)
+                    continue;
+
+                string fullPath = Path.Combine(directory, paths[i]);
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+            }
+
             int counter = 0;
 
             foreach (var photo in photos)
