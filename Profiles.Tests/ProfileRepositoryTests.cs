@@ -25,6 +25,55 @@ namespace Profiles.Tests
             _repository = new ProfileRepository(new ProfilesDbContext(), _loggerMock.Object);
         }
 
+        [Fact]
+        public async void GetPriofilesByFilter_ShouldReturnCorrectAnswer()
+        {
+            List<Profile> profiles = new List<Profile>
+            {
+                CreateFactory.CreateTestFactory(),
+                CreateFactory.CreateTestFactory(),
+                CreateFactory.CreateTestFactory()
+            };
+
+            foreach(var profile in profiles)
+            {
+                await _repository.AddAsync(profile);
+            }
+
+            var result = await _repository.GetProfilesByFilterAsync(new List<Guid>(), 3);
+
+            result.StatusCode.Should().Be(200);
+            result.Value.Should().NotBeNull();
+
+            result.Value.Should().HaveCount(3);
+        }
+
+        [Fact]
+        public async void GetPriofilesByFilter_ShouldReturnCorrectAnswer_ShouldNotReturnSpecificProfiles()
+        {
+            Profile profile = CreateFactory.CreateTestFactory();
+
+            List<Guid> guids = new List<Guid>
+            {
+                profile.AccountID
+            };
+
+            await _repository.AddAsync(profile);
+
+            var result = await _repository.GetProfilesByFilterAsync(guids);
+
+            result.StatusCode.Should().Be(200);
+
+            result.Value.Should().NotBeNull();
+            result.Value.Should().NotContain(x => x.AccountID == profile.AccountID);
+        }
+
+        [Fact]
+        public async void GetPriofilesByFilter_ShouldReturn400Error_GuidsCanNotBeNull()
+        {
+            var result = await _repository.GetProfilesByFilterAsync(null);
+            result.StatusCode.Should().Be(400);
+        }
 
         [Fact]
         public async Task AddAsync_ShouldReturnCorrecteResponse()

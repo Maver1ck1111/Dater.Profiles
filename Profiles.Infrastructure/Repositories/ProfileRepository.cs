@@ -118,6 +118,22 @@ namespace Profiles.Infrastructure.Repositories
             return Result<Profile>.Success(exsistingProfile);
         }
 
+        public async Task<Result<IEnumerable<Profile>>> GetProfilesByFilterAsync(IEnumerable<Guid> guids, int limit = 1000)
+        {
+            if(guids == null)
+            {
+                _logger.LogError("Array of ids can not be null");
+                return Result<IEnumerable<Profile>>.Failure(400, "Array of ids can not be null");
+            }
+
+            string query = "SELECT * FROM \"Profiles\" WHERE \"AccountID\" != ALL(@guids) ORDER BY RANDOM() LIMIT @limit";
+
+            IEnumerable<Profile> profiles = await _dbContext.DbConnection.QueryAsync<Profile>(query, new { guids = guids.ToArray(), limit });
+
+            _logger.LogInformation("Retrieved {Count} profiles with applied filters", profiles.Count());
+            return Result<IEnumerable<Profile>>.Success(profiles);
+        }
+
         public async Task<Result<bool>> UpdateAsync(Profile profile)
         {
             if (profile == null)
