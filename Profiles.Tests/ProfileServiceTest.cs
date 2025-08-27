@@ -187,5 +187,36 @@ namespace Profiles.Tests
             updateResult.StatusCode.Should().Be(404);
             updateResult.Value.Should().BeFalse();
         }
+
+        [Fact]
+        public async Task GetProfilesByFilterAsync_ShouldReturnCorrectResponse()
+        {
+            _repository
+                .Setup(repo => repo.GetProfilesByFilterAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<int>()))
+                .ReturnsAsync(Result<IEnumerable<Profiles.Domain.Profile>>.Success(new List<Profiles.Domain.Profile>
+                {
+                    CreateFactory.CreateTestFactory(),
+                    CreateFactory.CreateTestFactory(),
+                    CreateFactory.CreateTestFactory()
+                }));
+
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper);
+
+            var result = await profileService.GetProfilesByFilterAsync(new List<Guid>(), 3);
+
+            result.StatusCode.Should().Be(200);
+            result.Value.Should().NotBeNull();
+            result.Value.Count().Should().Be(3);
+        }
+
+        [Fact]
+        public async Task GetProfilesByFilterAsync_ShouldReturn400_NullGuids()
+        {
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper);
+
+            var result = await profileService.GetProfilesByFilterAsync(null, 3);
+
+            result.StatusCode.Should().Be(400);
+        }
     }
 }

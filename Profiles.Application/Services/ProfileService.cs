@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Profiles.Application.RepositoriesContracts;
 using Profiles.Application.ServicesContracts;
+using System.Collections.Generic;
 
 namespace Profiles.Application.Services
 {
@@ -124,6 +125,25 @@ namespace Profiles.Application.Services
 
             _logger.LogInformation("Profile retrieved successfully for account ID: {AccountId}", accountId);
             return Result<Profiles.Domain.Profile>.Success(result.Value);
+        }
+
+        public async Task<Result<IEnumerable<Domain.Profile>>> GetProfilesByFilterAsync(IEnumerable<Guid> guids, int limit = 1000)
+        {
+            if(guids == null)
+            {
+                _logger.LogError("Guids collection cannot be null");
+                return Result<IEnumerable<Domain.Profile>>.Failure(400, "Guids collection cannot be null");
+            }
+
+            Result<IEnumerable<Domain.Profile>> result = await _profileRepository.GetProfilesByFilterAsync(guids, limit);
+
+            if (result.StatusCode != 200)
+            {
+                _logger.LogError("Failed to retrieve profiles: {ErrorMessage}", result.ErrorMessage);
+                return Result<IEnumerable<Domain.Profile>>.Failure(result.StatusCode, result.ErrorMessage);
+            }
+
+            return Result<IEnumerable<Domain.Profile>>.Success(result.Value);
         }
 
         public async Task<Result<bool>> UpdateProfileAsync(Profiles.Domain.Profile profileUpdateRequest)
