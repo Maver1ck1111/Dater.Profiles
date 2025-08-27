@@ -187,5 +187,39 @@ namespace Profiles.Tests
 
             value.Should().Be("Profile not found");
         }
+
+        [Fact]
+        public async Task GetProfilesByFilter_ShouldReturnCorrectResponse()
+        {
+            IEnumerable<Domain.Profile> profileList = new List<Domain.Profile>(){
+                CreateFactory.CreateTestFactory(),
+                CreateFactory.CreateTestFactory(),
+                CreateFactory.CreateTestFactory()
+            };
+
+            _profileService.Setup(x => x.GetProfilesByFilterAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<int>()))
+                .ReturnsAsync(Result<IEnumerable<Domain.Profile>>.Success(profileList));
+
+            var controller = new ProfileController(_profileService.Object, _logger.Object, _mapper);
+            var result = await controller.GetProfilesByFilter(new List<Guid>());
+
+            result.Result.Should().BeOfType<OkObjectResult>();
+
+            var value = (result.Result as OkObjectResult)?.Value;
+            value.Should().NotBeNull();
+            value.Should().BeAssignableTo<IEnumerable<Domain.Profile>>();
+        }
+
+        [Fact]
+        public async Task GetProfilesByFilter_ShouldReturn400BadRequest() 
+        {
+            var controller = new ProfileController(_profileService.Object, _logger.Object, _mapper);
+
+            var result = await controller.GetProfilesByFilter(null);
+
+            result.Result.Should().BeOfType<BadRequestObjectResult>();
+            var value = (result.Result as BadRequestObjectResult)?.Value;
+            value.Should().Be("Guids collection cannot be null");
+        }
     }
 }

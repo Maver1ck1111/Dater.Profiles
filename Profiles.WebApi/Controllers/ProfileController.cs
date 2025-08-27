@@ -248,5 +248,26 @@ namespace Profiles.WebApi.Controllers
 
             return PhysicalFile(filePath, contentType);
         }
+
+        [HttpGet("getProfilesByFilter")]
+        public async Task<ActionResult<IEnumerable<Domain.Profile>>> GetProfilesByFilter(IEnumerable<Guid> guids)
+        {
+            if(guids == null)
+            {
+                _logger.LogError("Guids collection cannot be null");
+                return BadRequest("Guids collection cannot be null");
+            }
+
+            Result<IEnumerable<Domain.Profile>> result = await _profileRepository.GetProfilesByFilterAsync(guids);
+
+            if(result.StatusCode != 200)
+            {
+                _logger.LogError("Failed to retrieve profiles: {ErrorMessage}", result.ErrorMessage);
+                return StatusCode(result.StatusCode, result.ErrorMessage);
+            }
+
+            _logger.LogInformation("Profiles retrieved successfully");
+            return Ok(result.Value);
+        }
     }
 }
