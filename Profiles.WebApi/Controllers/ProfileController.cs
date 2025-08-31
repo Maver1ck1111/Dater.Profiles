@@ -249,7 +249,7 @@ namespace Profiles.WebApi.Controllers
             return PhysicalFile(filePath, contentType);
         }
 
-        [HttpGet("getProfilesByFilter")]
+        [HttpPost("getProfilesByFilter")]
         public async Task<ActionResult<IEnumerable<Domain.Profile>>> GetProfilesByFilter(IEnumerable<Guid> guids)
         {
             if(guids == null)
