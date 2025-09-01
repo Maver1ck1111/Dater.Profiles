@@ -249,8 +249,8 @@ namespace Profiles.WebApi.Controllers
             return PhysicalFile(filePath, contentType);
         }
 
-        [HttpPost("getProfilesByFilter/{gender}")]
-        public async Task<ActionResult<IEnumerable<Domain.Profile>>> GetProfilesByFilter(IEnumerable<Guid> guids, string searchGender)
+        [HttpPost("getProfilesByFilter/{searchGender}")]
+        public async Task<ActionResult<IEnumerable<Domain.Profile>>> GetProfilesByFilter([FromBody] IEnumerable<Guid> guids, string searchGender)
         {
             if(guids == null)
             {
