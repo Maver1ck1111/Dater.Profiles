@@ -14,6 +14,7 @@ namespace Profiles.Tests
             Description = "Test Description",
             DateOfBirth = new DateTime(1990, 1, 1),
             AccountID = Guid.NewGuid(),
+            Gender = Gender.Male,
             BookInterest = BookInterest.Fantasy,
             MovieInterest = MovieInterest.Thriller,
             MusicInterest = MusicInterest.Rock,
@@ -26,6 +27,7 @@ namespace Profiles.Tests
             Description = "Test Description",
             DateOfBirth = new DateTime(1990, 1, 1),
             AccountID = Guid.NewGuid(),
+            Gender = Gender.Male,
             BookInterest = BookInterest.Fantasy,
             MovieInterest = MovieInterest.Thriller,
             MusicInterest = MusicInterest.Rock

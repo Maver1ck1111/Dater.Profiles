@@ -192,7 +192,7 @@ namespace Profiles.Tests
         public async Task GetProfilesByFilterAsync_ShouldReturnCorrectResponse()
         {
             _repository
-                .Setup(repo => repo.GetProfilesByFilterAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<int>()))
+                .Setup(repo => repo.GetProfilesByFilterAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<string>(), It.IsAny<int>()))
                 .ReturnsAsync(Result<IEnumerable<Profiles.Domain.Profile>>.Success(new List<Profiles.Domain.Profile>
                 {
                     CreateFactory.CreateTestFactory(),
@@ -202,7 +202,7 @@ namespace Profiles.Tests
 
             var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper);
 
-            var result = await profileService.GetProfilesByFilterAsync(new List<Guid>(), 3);
+            var result = await profileService.GetProfilesByFilterAsync(new List<Guid>(), "Male", 3);
 
             result.StatusCode.Should().Be(200);
             result.Value.Should().NotBeNull();
@@ -214,7 +214,17 @@ namespace Profiles.Tests
         {
             var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper);
 
-            var result = await profileService.GetProfilesByFilterAsync(null, 3);
+            var result = await profileService.GetProfilesByFilterAsync(null, "Male", 3);
+
+            result.StatusCode.Should().Be(400);
+        }
+
+        [Fact]
+        public async Task GetProfilesByFilterAsync_ShouldReturn400_EmptyGenderString()
+        {
+            var profileService = new ProfileService(_repository.Object, _mockLogger.Object, _mapper);
+
+            var result = await profileService.GetProfilesByFilterAsync(null, "Male", 3);
 
             result.StatusCode.Should().Be(400);
         }

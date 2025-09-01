@@ -118,7 +118,7 @@ namespace Profiles.Infrastructure.Repositories
             return Result<Profile>.Success(exsistingProfile);
         }
 
-        public async Task<Result<IEnumerable<Profile>>> GetProfilesByFilterAsync(IEnumerable<Guid> guids, int limit = 1000)
+        public async Task<Result<IEnumerable<Profile>>> GetProfilesByFilterAsync(IEnumerable<Guid> guids, string searchGender, int limit = 1000)
         {
             if(guids == null)
             {
@@ -126,9 +126,22 @@ namespace Profiles.Infrastructure.Repositories
                 return Result<IEnumerable<Profile>>.Failure(400, "Array of ids can not be null");
             }
 
-            string query = "SELECT * FROM \"Profiles\" WHERE \"AccountID\" != ALL(@guids) ORDER BY RANDOM() LIMIT @limit";
+            if(searchGender == string.Empty || (searchGender != "Male" && searchGender != "Female"))
+            {
+                _logger.LogError("Gender should be Male or Female");
+                return Result<IEnumerable<Domain.Profile>>.Failure(400, "Gender should be Male or Female");
+            }
 
-            IEnumerable<Profile> profiles = await _dbContext.DbConnection.QueryAsync<Profile>(query, new { guids = guids.ToArray(), limit });
+            int gender = -1;
+
+            if(searchGender == "Male")
+                gender = 0;
+            else 
+                gender = 1;
+
+            string query = "SELECT * FROM \"Profiles\" WHERE \"AccountID\" != ALL(@guids) AND \"Gender\" = @gender  ORDER BY RANDOM() LIMIT @limit";
+
+            IEnumerable<Profile> profiles = await _dbContext.DbConnection.QueryAsync<Profile>(query, new { gender = Convert.ToString(gender), guids = guids.ToArray(), limit });
 
             _logger.LogInformation("Retrieved {Count} profiles with applied filters", profiles.Count());
             return Result<IEnumerable<Profile>>.Success(profiles);

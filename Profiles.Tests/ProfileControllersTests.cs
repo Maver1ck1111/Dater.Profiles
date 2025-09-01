@@ -197,11 +197,11 @@ namespace Profiles.Tests
                 CreateFactory.CreateTestFactory()
             };
 
-            _profileService.Setup(x => x.GetProfilesByFilterAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<int>()))
+            _profileService.Setup(x => x.GetProfilesByFilterAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<string>(), It.IsAny<int>()))
                 .ReturnsAsync(Result<IEnumerable<Domain.Profile>>.Success(profileList));
 
             var controller = new ProfileController(_profileService.Object, _logger.Object, _mapper);
-            var result = await controller.GetProfilesByFilter(new List<Guid>());
+            var result = await controller.GetProfilesByFilter(new List<Guid>(), "Male");
 
             result.Result.Should().BeOfType<OkObjectResult>();
 
@@ -211,15 +211,27 @@ namespace Profiles.Tests
         }
 
         [Fact]
-        public async Task GetProfilesByFilter_ShouldReturn400BadRequest() 
+        public async Task GetProfilesByFilter_ShouldReturn400BadRequest_EmptyIds() 
         {
             var controller = new ProfileController(_profileService.Object, _logger.Object, _mapper);
 
-            var result = await controller.GetProfilesByFilter(null);
+            var result = await controller.GetProfilesByFilter(null, "Male");
 
             result.Result.Should().BeOfType<BadRequestObjectResult>();
             var value = (result.Result as BadRequestObjectResult)?.Value;
             value.Should().Be("Guids collection cannot be null");
+        }
+
+        [Fact]
+        public async Task GetProfilesByFilter_ShouldReturn400BadRequest_EmptyGender()
+        {
+            var controller = new ProfileController(_profileService.Object, _logger.Object, _mapper);
+
+            var result = await controller.GetProfilesByFilter(new List<Guid>(), string.Empty);
+
+            result.Result.Should().BeOfType<BadRequestObjectResult>();
+            var value = (result.Result as BadRequestObjectResult)?.Value;
+            value.Should().Be("Gender should be Male or Female");
         }
     }
 }

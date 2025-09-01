@@ -127,7 +127,7 @@ namespace Profiles.Application.Services
             return Result<Profiles.Domain.Profile>.Success(result.Value);
         }
 
-        public async Task<Result<IEnumerable<Domain.Profile>>> GetProfilesByFilterAsync(IEnumerable<Guid> guids, int limit = 1000)
+        public async Task<Result<IEnumerable<Domain.Profile>>> GetProfilesByFilterAsync(IEnumerable<Guid> guids, string searchGender, int limit = 1000)
         {
             if(guids == null)
             {
@@ -135,7 +135,13 @@ namespace Profiles.Application.Services
                 return Result<IEnumerable<Domain.Profile>>.Failure(400, "Guids collection cannot be null");
             }
 
-            Result<IEnumerable<Domain.Profile>> result = await _profileRepository.GetProfilesByFilterAsync(guids, limit);
+            if (searchGender == string.Empty || (searchGender != "Male" && searchGender != "Female"))
+            {
+                _logger.LogError("Gender should be Male or Female");
+                return Result<IEnumerable<Domain.Profile>>.Failure(400, "Gender should be Male or Female");
+            }
+
+            Result<IEnumerable<Domain.Profile>> result = await _profileRepository.GetProfilesByFilterAsync(guids, searchGender, limit);
 
             if (result.StatusCode != 200)
             {

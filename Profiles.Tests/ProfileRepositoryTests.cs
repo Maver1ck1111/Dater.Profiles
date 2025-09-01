@@ -40,7 +40,7 @@ namespace Profiles.Tests
                 await _repository.AddAsync(profile);
             }
 
-            var result = await _repository.GetProfilesByFilterAsync(new List<Guid>(), 3);
+            var result = await _repository.GetProfilesByFilterAsync(new List<Guid>(), "Male", 3);
 
             result.StatusCode.Should().Be(200);
             result.Value.Should().NotBeNull();
@@ -60,7 +60,7 @@ namespace Profiles.Tests
 
             await _repository.AddAsync(profile);
 
-            var result = await _repository.GetProfilesByFilterAsync(guids);
+            var result = await _repository.GetProfilesByFilterAsync(guids, "Male");
 
             result.StatusCode.Should().Be(200);
 
@@ -71,7 +71,14 @@ namespace Profiles.Tests
         [Fact]
         public async void GetPriofilesByFilter_ShouldReturn400Error_GuidsCanNotBeNull()
         {
-            var result = await _repository.GetProfilesByFilterAsync(null);
+            var result = await _repository.GetProfilesByFilterAsync(null, "Male");
+            result.StatusCode.Should().Be(400);
+        }
+
+        [Fact]
+        public async void GetPriofilesByFilter_ShouldReturn400Error_GenderCanNotBeEmpty()
+        {
+            var result = await _repository.GetProfilesByFilterAsync(new List<Guid>(), string.Empty);
             result.StatusCode.Should().Be(400);
         }
 

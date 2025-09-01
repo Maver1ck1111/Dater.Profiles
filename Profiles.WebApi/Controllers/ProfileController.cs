@@ -249,8 +249,8 @@ namespace Profiles.WebApi.Controllers
             return PhysicalFile(filePath, contentType);
         }
 
-        [HttpPost("getProfilesByFilter")]
-        public async Task<ActionResult<IEnumerable<Domain.Profile>>> GetProfilesByFilter(IEnumerable<Guid> guids)
+        [HttpPost("getProfilesByFilter/{gender}")]
+        public async Task<ActionResult<IEnumerable<Domain.Profile>>> GetProfilesByFilter(IEnumerable<Guid> guids, string searchGender)
         {
             if(guids == null)
             {
@@ -258,7 +258,13 @@ namespace Profiles.WebApi.Controllers
                 return BadRequest("Guids collection cannot be null");
             }
 
-            Result<IEnumerable<Domain.Profile>> result = await _profileRepository.GetProfilesByFilterAsync(guids);
+            if(searchGender == string.Empty || (searchGender != "Male" && searchGender != "Female"))
+            {
+                _logger.LogError("Gender should be Male or Female");
+                return BadRequest("Gender should be Male or Female");
+            }
+
+            Result<IEnumerable<Domain.Profile>> result = await _profileRepository.GetProfilesByFilterAsync(guids, searchGender);
 
             if(result.StatusCode != 200)
             {

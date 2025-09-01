@@ -9,6 +9,6 @@ namespace Profiles.Application.ServicesContracts
         Task<Result<Profile>> GetProfileByAccountIdAsync(Guid accountId);
         Task<Result<bool>> UpdateProfileAsync(Profiles.Domain.Profile profileUpdateRequest);
         Task<Result<bool>> DeleteProfileAsync(Guid profileId);
-        Task<Result<IEnumerable<Profile>>> GetProfilesByFilterAsync(IEnumerable<Guid> guids, int limit = 1000);
+        Task<Result<IEnumerable<Profile>>> GetProfilesByFilterAsync(IEnumerable<Guid> guids, string searchGender, int limit = 1000);
     }
 }
