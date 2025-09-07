@@ -169,7 +169,7 @@ namespace Profiles.WebApi.Controllers
                 if (!allowedExtensions.Contains(extension))
                     continue;
 
-                var fileName = $"{getResult.Value.AccountID}.{counter}.{extension}";
+                var fileName = $"{getResult.Value.AccountID}.{counter}{extension}";
 
                 var fullPath = Path.Combine(directory, fileName);
 
@@ -235,14 +235,24 @@ namespace Profiles.WebApi.Controllers
                 return NotFound("Profile pictures directory does not exist");
             }
 
-            var files = Directory.GetFiles(folder, $"{accountID}.{index}.*");
+            string[] extensions = { "jpg", "jpeg", "png" };
+            string? filePath = null;
 
-            if (!files.Any())
+            foreach (var ext in extensions)
             {
-                return NotFound("No photos");
+                var path = Path.Combine(folder, $"{accountID}.{index}.{ext}");
+                if (System.IO.File.Exists(path))
+                {
+                    filePath = path;
+                    break;
+                }
             }
 
-            var filePath = files[0];
+            if (filePath == null)
+            {
+                return NotFound("Photo not found");
+            }
+
             var extension = Path.GetExtension(filePath).TrimStart('.').ToLowerInvariant();
             var contentType = $"image/{extension}";
 
